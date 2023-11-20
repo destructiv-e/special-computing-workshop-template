@@ -10,6 +10,8 @@ import java.util.NoSuchElementException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import ru.spbu.apcyb.svp.tasks.atm.Atm;
+import ru.spbu.apcyb.svp.tasks.atm.Main;
 
 class AtmTest {
 
