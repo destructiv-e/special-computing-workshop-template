@@ -1,0 +1,6 @@
+C:\Users\HOME\IdeaProjects\special-computing-workshop-templateee\src\test\resources\read\3.txt
+C:\Users\HOME\IdeaProjects\special-computing-workshop-templateee\src\test\resources\read\dir
+C:\Users\HOME\IdeaProjects\special-computing-workshop-templateee\src\test\resources\read\dir\2.txt
+C:\Users\HOME\IdeaProjects\special-computing-workshop-templateee\src\test\resources\read\dir\directory
+C:\Users\HOME\IdeaProjects\special-computing-workshop-templateee\src\test\resources\read\dir\directory\1.txt
+C:\Users\HOME\IdeaProjects\special-computing-workshop-templateee\src\test\resources\read\dir\directory\empty
