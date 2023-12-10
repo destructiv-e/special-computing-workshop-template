@@ -14,6 +14,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * Класс позволяющий подсчитать количество слов в тексте. Записать в файл их количество и создать
+ * директорию с файлами, в которых будет лежать это слово.
+ */
 public class WordCounterInText {
 
   private final Path pathToFileRead;
@@ -21,6 +25,13 @@ public class WordCounterInText {
   private final Path pathToGlobalDirectory;
 
 
+  /**
+   * Конструктор для создания объекта данного класса.
+   *
+   * @param pathToFileRead        - путь к файлу, текст которого нужно просканировать
+   * @param pathToFileWrite       - путь к файлу, куда нужно выписать все слова
+   * @param pathToGlobalDirectory - путь к директории, в которой нужно создать файлы
+   */
   public WordCounterInText(String pathToFileRead, String pathToFileWrite,
       String pathToGlobalDirectory) {
     this.pathToFileRead = Path.of(pathToFileRead);
@@ -43,6 +54,12 @@ public class WordCounterInText {
     }
   }
 
+  /**
+   * Метод для подсчёта слов.
+   *
+   * @return - Map (ключ - слово, значение - количество)
+   * @throws IOException - в случае, если не удалось корректно разделить слова
+   */
   public Map<String, Long> countWord() throws IOException {
     checkDir();
     try (Stream<String> lines = Files.lines(pathToFileRead)) {
@@ -55,6 +72,12 @@ public class WordCounterInText {
     }
   }
 
+  /**
+   * Метод, для записи всех слов в 1 файл.
+   *
+   * @param mapWord - результат вычислений метода countWord()
+   * @throws IOException - в случае, если не получилось записать данные в файл
+   */
   public void printMapToCountFile(Map<String, Long> mapWord) throws IOException {
     checkDir();
     try (BufferedWriter bufferedWriter = Files.newBufferedWriter(pathToFileWrite)) {
@@ -64,11 +87,12 @@ public class WordCounterInText {
         bufferedWriter.write(getKey + " : " + getValue + "\n");
       }
     } catch (IOException e) {
-      throw new IOException(e + "\nError while writing to output file");
+      throw new IOException("failed to write to the file.");
     }
   }
 
-  private void createFileForWord(String word, Long count, Path pathToDirectoryWrite) throws IOException {
+  private void createFileForWord(String word, Long count, Path pathToDirectoryWrite)
+      throws IOException {
     Path filePath = Path.of(pathToDirectoryWrite.toString(), word + ".txt");
 
     try (FileWriter writer = new FileWriter(filePath.toString())) {
@@ -82,6 +106,12 @@ public class WordCounterInText {
     }
   }
 
+  /**
+   * Метод для создания директории и создания файлов со словами.
+   *
+   * @param wordCounts - результат метода countWord()
+   * @throws IOException - в случае если не удалось создать директорию
+   */
   public void createDirectoryWithResultFiles(Map<String, Long> wordCounts) throws IOException {
     Path newDirectory = Path.of(pathToGlobalDirectory.toString() + "/results");
     try {

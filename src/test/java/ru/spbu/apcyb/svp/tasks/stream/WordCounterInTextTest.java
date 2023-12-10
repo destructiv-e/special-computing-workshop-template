@@ -20,7 +20,6 @@ class WordCounterInTextTest {
     counter.printMapToCountFile(counter.countWord());
     counter.createDirectoryWithResultFiles(counter.countWord());
 
-    Path pathTestCountRes = Path.of("src/test/resources/stream/countsTest.txt");
     Path pathTestCount = Path.of("src/test/resources/stream/counts.txt");
     File[] resultFiles =
         (new File("src/test/resources/stream/results"))
@@ -29,8 +28,7 @@ class WordCounterInTextTest {
 
     int count = 0;
     try (BufferedReader reader = new BufferedReader(new FileReader(pathTestCount.toString()))) {
-      String line;
-      while ((line = reader.readLine()) != null) {
+      while ((reader.readLine()) != null) {
         count++;
       }
     }
