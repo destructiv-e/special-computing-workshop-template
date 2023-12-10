@@ -1,11 +1,15 @@
 package ru.spbu.apcyb.svp.tasks.stream;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,17 +18,18 @@ public class WordCounterInText {
 
   private final Path pathToFileRead;
   private final Path pathToFileWrite;
-  private final Path pathToDirectoryWrite;
+  private final Path pathToGlobalDirectory;
+
 
   public WordCounterInText(String pathToFileRead, String pathToFileWrite,
-      String pathToDirectoryWrite) {
-    this.pathToDirectoryWrite = Path.of(pathToDirectoryWrite);
+      String pathToGlobalDirectory) {
     this.pathToFileRead = Path.of(pathToFileRead);
     this.pathToFileWrite = Path.of(pathToFileWrite);
+    this.pathToGlobalDirectory = Path.of(pathToGlobalDirectory);
   }
 
   private void checkDir() throws IOException {
-    if (!Files.isDirectory(pathToDirectoryWrite)) {
+    if (!Files.isDirectory(pathToGlobalDirectory)) {
       throw new IOException(
           "The path to the directory where you want to write files contains errors.");
     }
@@ -52,20 +57,19 @@ public class WordCounterInText {
 
   public void printMapToCountFile(Map<String, Long> mapWord) throws IOException {
     checkDir();
-    try (FileWriter writer = new FileWriter(pathToFileWrite.toString())) {
-
-      for (Map.Entry<String, Long> wordCount : mapWord.entrySet()) {
-        String line = String.format(wordCount.getKey() + ": " + wordCount.getValue() + "\n");
-        writer.write(line);
+    try (BufferedWriter bufferedWriter = Files.newBufferedWriter(pathToFileWrite)) {
+      for (Map.Entry<String, Long> entry : mapWord.entrySet()) {
+        String getKey = entry.getKey();
+        String getValue = entry.getValue().toString();
+        bufferedWriter.write(getKey + " : " + getValue + "\n");
       }
-
     } catch (IOException e) {
-      throw new IOException("Problem with output to file.");
+      throw new IOException(e + "\nError while writing to output file");
     }
   }
 
-  public void createFileForWord(String word, Long count) throws IOException {
-    Path filePath = Path.of(String.valueOf(pathToDirectoryWrite), word + ".txt");
+  private void createFileForWord(String word, Long count, Path pathToDirectoryWrite) throws IOException {
+    Path filePath = Path.of(pathToDirectoryWrite.toString(), word + ".txt");
 
     try (FileWriter writer = new FileWriter(filePath.toString())) {
 
@@ -74,8 +78,28 @@ public class WordCounterInText {
       }
 
     } catch (IOException ex) {
-      throw new IOException("Problem creating file.");
+      throw new IOException("Failed to create a file.");
+    }
+  }
+
+  public void createDirectoryWithResultFiles(Map<String, Long> wordCounts) throws IOException {
+    Path newDirectory = Path.of(pathToGlobalDirectory.toString() + "/results");
+    try {
+      Path directoryToSave = Files.createDirectories(newDirectory);
+      for (Entry<String, Long> entry : wordCounts.entrySet()) {
+        String word = entry.getKey();
+        Long number = entry.getValue();
+        CompletableFuture.runAsync(
+            () -> {
+              try {
+                createFileForWord(word, number, directoryToSave);
+              } catch (IOException e) {
+                throw new InputMismatchException("the file could not be created.");
+              }
+            });
+      }
+    } catch (IOException ex) {
+      throw new IOException("The directory could not be created. ");
     }
   }
 }
-
